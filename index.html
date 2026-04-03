@@ -53,23 +53,32 @@
     .capture-container { display: flex; justify-content: center; align-items: flex-start; overflow: visible; position: relative; }
 
     .feed-card { 
-        background: #ffffff; /* 캡쳐 오류 방지를 위해 명시적 하드코딩 */
+        background: #ffffff; 
         border-radius: var(--border-radius); width: 380px; 
         box-shadow: 0 15px 45px rgba(0,0,0,0.08); overflow: hidden; 
-        border: 1px solid #e0e0e0;
+        border: 1px solid rgba(0,0,0,0.05);
         transition: transform 0.3s ease-out;
         transform-origin: top center;
     }
     .card-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid #eee; }
     .user-info { display: flex; align-items: center; gap: 12px; }
-    .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: #eee; overflow: hidden; }
-    .user-avatar img { width: 100%; height: 100%; object-fit: cover; display: none; }
-    .avatar-placeholder { font-size: 1.8rem; color: #ccc; display: flex; justify-content: center; align-items: center; }
+    
+    /* 프로필 이미지 (백그라운드 처리) */
+    .user-avatar { 
+        width: 36px; height: 36px; border-radius: 50%; background-color: #eee; 
+        background-size: cover; background-position: center; background-repeat: no-repeat;
+        display: flex; justify-content: center; align-items: center; 
+    }
+    .avatar-placeholder { font-size: 1.8rem; color: #ccc; }
     .username-display { font-weight: 600; font-size: 0.95rem; color: #222; }
     
-    .post-image-container { width: 100%; aspect-ratio: 1/1; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; position: relative; }
-    .post-image { width: 100%; height: 100%; object-fit: cover; display: none; }
-    .post-image-container .fa-camera { font-size: 5rem; color: rgba(0,0,0,0.05); display: block; }
+    /* 메인 이미지 (백그라운드 처리) */
+    .post-image-container { 
+        width: 100%; aspect-ratio: 1/1; background-color: #f0f0f0; 
+        background-size: cover; background-position: center; background-repeat: no-repeat;
+        display: flex; justify-content: center; align-items: center; position: relative; 
+    }
+    .post-image-container .fa-camera { font-size: 5rem; color: rgba(0,0,0,0.05); }
     
     .post-actions { padding: 12px 18px; display: flex; justify-content: space-between; font-size: 1.5rem; color: #333; }
     .post-actions .left { display: flex; gap: 15px; }
@@ -102,18 +111,17 @@
 <div class="main-container">
     <div class="controls">
         <h3>⚙️ SNS 피드 생성기</h3>
-        
         <div class="control-group">
             <label>유저 이름</label>
             <input type="text" id="inputUsername" value="WHOU_Design" oninput="updateFeedText()">
         </div>
         <div class="control-group">
             <label>유저 사진</label>
-            <input type="file" id="inputProfilePic" accept="image/*" onchange="previewImage(this, 'outProfilePic')">
+            <input type="file" accept="image/*" onchange="previewImage(this, 'outProfilePicArea', 'profilePlaceholder')">
         </div>
         <div class="control-group">
             <label>메인 사진</label>
-            <input type="file" id="inputPostPic" accept="image/*" onchange="previewImage(this, 'outPostPic', 'cameraIcon')">
+            <input type="file" accept="image/*" onchange="previewImage(this, 'outPostPicArea', 'cameraIcon')">
         </div>
         <div class="control-group">
             <label>내용 (캡션)</label>
@@ -123,7 +131,7 @@
             <label>댓글 추가</label>
             <div class="comment-input-group">
                 <input type="text" id="inputCommentName" value="사용자">
-                <input type="text" id="inputCommentText" placeholder="댓글 내용 입력...">
+                <input type="text" id="inputCommentText" placeholder="댓글 내용 입력..." onkeypress="if(event.key === 'Enter') addComment()">
             </div>
             <div class="comment-input-group">
                 <button class="add-comment-btn" onclick="addComment()"><i class="fa-solid fa-plus"></i> 댓글 추가</button>
@@ -142,8 +150,7 @@
         <div class="feed-card" id="captureArea">
             <div class="card-header">
                 <div class="user-info">
-                    <div class="user-avatar">
-                        <img id="outProfilePic" src="" alt="Profile">
+                    <div class="user-avatar" id="outProfilePicArea">
                         <div class="avatar-placeholder" id="profilePlaceholder"><i class="fa-solid fa-circle-user"></i></div>
                     </div>
                     <span class="username-display" id="outUsername">WHOU_Design</span>
@@ -151,7 +158,6 @@
                 <i class="fa-solid fa-ellipsis"></i>
             </div>
             <div class="post-image-container" id="outPostPicArea">
-                <img id="outPostPic" class="post-image" src="" alt="Post">
                 <i class="fa-solid fa-camera" id="cameraIcon"></i>
             </div>
             <div class="post-actions">
@@ -203,26 +209,22 @@
         return formatted.replace(/(\#[^\s!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?]+)/g, '<span class="hashtag">$1</span>');
     }
 
-    function previewImage(input, targetId, iconId) {
-        const targetImg = document.getElementById(targetId);
-        const placeholder = targetId === 'outProfilePic' ? document.getElementById('profilePlaceholder') : null;
-        const icon = iconId ? document.getElementById(iconId) : null;
+    // 이미지 프리뷰 로직 변경 (src 대신 backgroundImage 사용)
+    function previewImage(input, targetAreaId, iconId) {
+        const targetArea = document.getElementById(targetAreaId);
+        const icon = document.getElementById(iconId);
         
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                targetImg.src = e.target.result;
-                targetImg.style.display = 'block';
-                if (placeholder) placeholder.style.display = 'none';
+                targetArea.style.backgroundImage = `url(${e.target.result})`;
                 if (icon) icon.style.display = 'none';
                 updateHeightAndResize();
             }
             reader.readAsDataURL(input.files[0]);
         } else {
-            targetImg.style.display = 'none';
-            targetImg.src = '';
-            if (placeholder) placeholder.style.display = 'flex';
-            if (icon) icon.style.display = 'block';
+            targetArea.style.backgroundImage = 'none';
+            if (icon) icon.style.display = ''; // 원래 CSS 속성으로 되돌림
             updateHeightAndResize();
         }
     }
@@ -309,24 +311,33 @@
     // --- 캡쳐 안정화 로직 ---
     async function generateCanvas() {
         const area = document.getElementById('captureArea');
-        const oriTrans = area.style.transform;
-        const oriShadow = area.style.boxShadow;
+        const container = document.getElementById('captureContainer');
+        const originalStyle = area.getAttribute('style') || '';
+        const originalContainerHeight = container.style.height;
         
-        // 캡쳐 오류 방지를 위해 임시로 모바일 축소 풀기 & 그림자 제거
-        area.style.transform = 'scale(1)';
-        area.style.boxShadow = 'none';
+        container.style.height = `${container.offsetHeight}px`;
         
-        await new Promise(r => setTimeout(r, 100)); // 렌더링 시간 벌기
+        area.style.setProperty('transform', 'scale(1)', 'important');
+        area.style.setProperty('position', 'fixed', 'important');
+        area.style.setProperty('top', '0', 'important');
+        area.style.setProperty('left', '0', 'important');
+        area.style.setProperty('z-index', '9999', 'important');
+        area.style.setProperty('margin', '0', 'important');
+        area.style.setProperty('box-shadow', 'none', 'important');
+        area.style.setProperty('border', 'none', 'important');
+        area.style.setProperty('border-radius', '0', 'important');
+        
+        await new Promise(r => setTimeout(r, 200)); 
         
         const canvas = await html2canvas(area, {
-            scale: 2, 
-            backgroundColor: '#ffffff', // 배경을 무조건 흰색으로 고정
-            useCORS: true
+            scale: 3, 
+            backgroundColor: '#ffffff', 
+            useCORS: true,
+            logging: false
         });
         
-        // 원상 복구
-        area.style.transform = oriTrans;
-        area.style.boxShadow = oriShadow;
+        area.setAttribute('style', originalStyle);
+        container.style.height = originalContainerHeight;
         
         return canvas;
     }
@@ -345,7 +356,7 @@
             canvas.toBlob(blob => {
                 navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
                     .then(() => alert('클립보드에 복사되었습니다.'))
-                    .catch(() => alert('복사에 실패했습니다.'));
+                    .catch(() => alert('복사에 실패했습니다. 권한을 확인해주세요.'));
             });
         });
     }
