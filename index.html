@@ -41,6 +41,7 @@
     .comment-list-control { margin-top: 15px; font-size: 0.9rem; color: var(--secondary-text);}
     .comment-control-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
     .comment-control-item button { background: none; border: none; cursor: pointer; font-size: 0.9rem; margin-left: 5px; }
+    .comment-control-item .edit-btn { color: var(--accent-color); }
     .comment-control-item .del-btn { color: #f44; }
 
     /* 액션 버튼 */
@@ -50,9 +51,13 @@
     .copy-btn { background: #fff; color: #222; border: 1px solid #222;}
     .share-btn { background: var(--accent-color); color: white; }
 
-    /* 직접 수정 가능 영역 하이라이트 */
-    .editable { outline: none; border-radius: 4px; transition: background 0.2s, box-shadow 0.2s; padding: 0 2px; margin: 0 -2px; }
-    .editable:hover, .editable:focus { background: rgba(0,0,0,0.05); box-shadow: 0 0 0 2px rgba(0,0,0,0.05); cursor: text; }
+    /* 안쪽(인라인) 직접 수정 가능 영역 강조 효과 */
+    .editable { 
+        outline: none; border-radius: 4px; padding: 2px 4px; margin: -2px -4px; 
+        border: 1px dashed transparent; transition: 0.2s; 
+    }
+    .editable:hover { border-color: #ccc; background: rgba(0,0,0,0.03); cursor: text; }
+    .editable:focus { border-color: var(--accent-color); background: #fff; box-shadow: 0 0 0 2px rgba(0,149,246,0.2); cursor: text; }
 
     /* 피드 카드 미리보기 */
     .capture-container { display: flex; justify-content: center; align-items: flex-start; overflow: visible; position: relative; }
@@ -156,7 +161,9 @@
                     <div class="user-avatar" id="outProfilePicArea">
                         <div class="avatar-placeholder" id="profilePlaceholder"><i class="fa-solid fa-circle-user"></i></div>
                     </div>
-                    <span class="username-display editable" id="outUsername" contenteditable="true" spellcheck="false" oninput="syncUserInline(this.innerText, false)">WHOU_Design</span>
+                    <span class="username-display editable" id="outUsername" contenteditable="true" spellcheck="false" 
+                          onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}" 
+                          onblur="syncUserInline(this.innerText, true)">WHOU_Design</span>
                 </div>
                 <i class="fa-solid fa-ellipsis"></i>
             </div>
@@ -173,8 +180,12 @@
             </div>
             <div class="post-content">
                 <div class="post-caption">
-                    <strong id="outCaptionUser" class="editable" contenteditable="true" spellcheck="false" oninput="syncUserInline(this.innerText, true)">WHOU_Design</strong>
-                    <span id="outCaptionText" class="caption-text editable" contenteditable="true" spellcheck="false"></span>
+                    <strong id="outCaptionUser" class="editable" contenteditable="true" spellcheck="false" 
+                            onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}" 
+                            onblur="syncUserInline(this.innerText, false)">WHOU_Design</strong>
+                    <span id="outCaptionText" class="caption-text editable" contenteditable="true" spellcheck="false" 
+                          onfocus="focusCaption(this)" 
+                          onblur="blurCaption(this)"></span>
                 </div>
                 <div id="viewCommentsBtn" class="view-comments-btn" onclick="toggleComments()">모든 댓글 보기</div>
                 <div id="outComments" class="comments-section"></div>
@@ -191,33 +202,54 @@
         oriWidth = document.getElementById('captureArea').offsetWidth;
         renderComments(); 
         resizeCard(); 
-        setupCaptionInlineEdit();
+        updateFeedText();
     });
 
     window.addEventListener('resize', resizeCard);
 
-    // 내용(캡션) 인라인 수정 로직 (포커스 시 원본 텍스트, 블러 시 서식 적용)
-    function setupCaptionInlineEdit() {
-        const captionEl = document.getElementById('outCaptionText');
-        captionEl.addEventListener('focus', function() {
-            this.innerText = document.getElementById('inputCaption').value;
-        });
-        captionEl.addEventListener('blur', function() {
-            document.getElementById('inputCaption').value = this.innerText;
-            this.innerHTML = formatText(this.innerText);
-            updateHeightAndResize();
-        });
-    }
-
-    // 이름 인라인 수정 동기화
-    function syncUserInline(val, isCaptionUser) {
+    /* --- 인라인 수정 동기화 함수들 --- */
+    function syncUserInline(val, isHeader) {
         document.getElementById('inputUsername').value = val;
-        if (isCaptionUser) {
-            document.getElementById('outUsername').innerText = val;
-        } else {
+        if (isHeader) {
             document.getElementById('outCaptionUser').innerText = val;
+        } else {
+            document.getElementById('outUsername').innerText = val;
         }
     }
+
+    function focusCaption(el) {
+        el.innerText = document.getElementById('inputCaption').value;
+    }
+
+    function blurCaption(el) {
+        document.getElementById('inputCaption').value = el.innerText;
+        el.innerHTML = formatText(el.innerText);
+        updateHeightAndResize();
+    }
+
+    function focusCmtText(el, id) {
+        const c = comments.find(x => x.id === id);
+        if (c) el.innerText = c.text; // 수정할 때는 마크다운 원본 텍스트 보여주기
+    }
+
+    function blurCmtText(el, id) {
+        const c = comments.find(x => x.id === id);
+        if (c) {
+            c.text = el.innerText;
+            el.innerHTML = formatText(c.text);
+            renderCommentControl();
+            updateHeightAndResize();
+        }
+    }
+
+    function blurCmtName(el, id) {
+        const c = comments.find(x => x.id === id);
+        if (c) {
+            c.name = el.innerText;
+            renderCommentControl();
+        }
+    }
+    /* ------------------------------ */
 
     function updateFeedText() {
         const username = document.getElementById('inputUsername').value || 'WHOU_Design';
@@ -227,7 +259,6 @@
             document.getElementById('outUsername').innerText = username;
             document.getElementById('outCaptionUser').innerText = username;
         }
-        
         if(document.activeElement.id !== 'outCaptionText') {
             document.getElementById('outCaptionText').innerHTML = formatText(caption);
         }
@@ -304,20 +335,18 @@
         updateHeightAndResize();
     }
 
-    // 댓글 인라인 수정 처리
-    function updateCmtData(id, field, value) {
-        const comment = comments.find(c => c.id === id);
-        if (comment) {
-            comment[field] = value;
-            renderCommentControl();
-            renderComments(); // 서식 재적용
-            updateHeightAndResize();
+    // 바깥쪽(컨트롤 패널)에서 수정하는 기능 (프롬프트 창)
+    function editComment(id) {
+        const target = comments.find(c => c.id === id);
+        if (target) {
+            const newText = prompt("댓글 내용을 수정하세요:", target.text);
+            if (newText !== null && newText.trim() !== "") {
+                target.text = newText;
+                renderComments();
+                renderCommentControl();
+                updateHeightAndResize();
+            }
         }
-    }
-
-    function getCmtTextRaw(id) {
-        const comment = comments.find(c => c.id === id);
-        return comment ? comment.text : '';
     }
 
     function renderComments() {
@@ -333,15 +362,18 @@
         const visible = comments.length > 2 ? comments.slice(-2) : comments;
         visible.forEach(c => {
             out.insertAdjacentHTML('beforeend', `
-            <div class="comment-item">
-                <div>
-                    <strong class="editable" contenteditable="true" spellcheck="false" onblur="updateCmtData(${c.id}, 'name', this.innerText)">${c.name}</strong>
-                    <span class="comment-text editable" contenteditable="true" spellcheck="false" 
-                          onfocus="this.innerText = getCmtTextRaw(${c.id})" 
-                          onblur="updateCmtData(${c.id}, 'text', this.innerText)">${formatText(c.text)}</span>
+                <div class="comment-item">
+                    <div>
+                        <strong class="editable" contenteditable="true" spellcheck="false" 
+                                onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}" 
+                                onblur="blurCmtName(this, ${c.id})">${c.name}</strong>
+                        <span class="comment-text editable" contenteditable="true" spellcheck="false" 
+                              onfocus="focusCmtText(this, ${c.id})" 
+                              onblur="blurCmtText(this, ${c.id})">${formatText(c.text)}</span>
+                    </div>
+                    <i class="fa-regular fa-heart"></i>
                 </div>
-                <i class="fa-regular fa-heart"></i>
-            </div>`);
+            `);
         });
         oriHeight = document.getElementById('captureArea').offsetHeight;
     }
@@ -354,6 +386,7 @@
                 <div class="comment-control-item">
                     <span><strong>${c.name}</strong>: ${c.text.substring(0,18)}${c.text.length>18?'...':''}</span>
                     <div>
+                        <button class="edit-btn" onclick="editComment(${c.id})"><i class="fa-solid fa-pen"></i></button>
                         <button class="del-btn" onclick="removeComment(${c.id})"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
                 </div>
@@ -367,15 +400,18 @@
         out.innerHTML = '';
         comments.forEach(c => {
             out.insertAdjacentHTML('beforeend', `
-            <div class="comment-item">
-                <div>
-                    <strong class="editable" contenteditable="true" spellcheck="false" onblur="updateCmtData(${c.id}, 'name', this.innerText)">${c.name}</strong>
-                    <span class="comment-text editable" contenteditable="true" spellcheck="false" 
-                          onfocus="this.innerText = getCmtTextRaw(${c.id})" 
-                          onblur="updateCmtData(${c.id}, 'text', this.innerText)">${formatText(c.text)}</span>
+                <div class="comment-item">
+                    <div>
+                        <strong class="editable" contenteditable="true" spellcheck="false" 
+                                onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}" 
+                                onblur="blurCmtName(this, ${c.id})">${c.name}</strong>
+                        <span class="comment-text editable" contenteditable="true" spellcheck="false" 
+                              onfocus="focusCmtText(this, ${c.id})" 
+                              onblur="blurCmtText(this, ${c.id})">${formatText(c.text)}</span>
+                    </div>
+                    <i class="fa-regular fa-heart"></i>
                 </div>
-                <i class="fa-regular fa-heart"></i>
-            </div>`);
+            `);
         });
         updateHeightAndResize();
     }
@@ -398,9 +434,9 @@
         area.style.setProperty('border', 'none', 'important');
         area.style.setProperty('border-radius', '0', 'important');
         
-        // 캡쳐 시 editable 배경 효과 제거
+        // 캡쳐 시 editable 점선/배경 효과 제거
         const editables = document.querySelectorAll('.editable');
-        editables.forEach(el => { el.style.outline = 'none'; el.style.background = 'transparent'; el.style.boxShadow = 'none'; });
+        editables.forEach(el => { el.style.border = 'none'; el.style.background = 'transparent'; el.style.boxShadow = 'none'; });
         
         await new Promise(r => setTimeout(r, 200)); 
         
@@ -449,8 +485,6 @@
             });
         });
     }
-    
-    updateFeedText();
 </script>
 </body>
 </html>
