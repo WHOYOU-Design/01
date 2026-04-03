@@ -19,7 +19,7 @@
         font-family: 'Pretendard', -apple-system, sans-serif; 
         margin: 0; padding: 30px; 
         display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; 
-        background: linear-gradient(to bottom, #ffe6eb 0%, #ffffff 100%);
+        background-color: #fafafa;
         color: var(--primary-text);
     }
     
@@ -41,7 +41,6 @@
     .comment-list-control { margin-top: 15px; font-size: 0.9rem; color: var(--secondary-text);}
     .comment-control-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
     .comment-control-item button { background: none; border: none; cursor: pointer; font-size: 0.9rem; margin-left: 5px; }
-    .comment-control-item .edit-btn { color: var(--accent-color); }
     .comment-control-item .del-btn { color: #f44; }
 
     /* 액션 버튼 */
@@ -50,6 +49,10 @@
     .capture-btn { background: #222; color: white; }
     .copy-btn { background: #fff; color: #222; border: 1px solid #222;}
     .share-btn { background: var(--accent-color); color: white; }
+
+    /* 직접 수정 가능 영역 하이라이트 */
+    .editable { outline: none; border-radius: 4px; transition: background 0.2s, box-shadow 0.2s; padding: 0 2px; margin: 0 -2px; }
+    .editable:hover, .editable:focus { background: rgba(0,0,0,0.05); box-shadow: 0 0 0 2px rgba(0,0,0,0.05); cursor: text; }
 
     /* 피드 카드 미리보기 */
     .capture-container { display: flex; justify-content: center; align-items: flex-start; overflow: visible; position: relative; }
@@ -65,7 +68,6 @@
     .card-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid #eee; }
     .user-info { display: flex; align-items: center; gap: 12px; }
     
-    /* 프로필 이미지 (백그라운드 처리) */
     .user-avatar { 
         width: 36px; height: 36px; border-radius: 50%; background-color: #eee; 
         background-size: cover; background-position: center; background-repeat: no-repeat;
@@ -74,7 +76,6 @@
     .avatar-placeholder { font-size: 1.8rem; color: #ccc; }
     .username-display { font-weight: 600; font-size: 0.95rem; color: #222; }
     
-    /* 메인 이미지 (백그라운드 처리) */
     .post-image-container { 
         width: 100%; aspect-ratio: 1/1; background-color: #f0f0f0; 
         background-size: cover; background-position: center; background-repeat: no-repeat;
@@ -155,7 +156,7 @@
                     <div class="user-avatar" id="outProfilePicArea">
                         <div class="avatar-placeholder" id="profilePlaceholder"><i class="fa-solid fa-circle-user"></i></div>
                     </div>
-                    <span class="username-display" id="outUsername">WHOU_Design</span>
+                    <span class="username-display editable" id="outUsername" contenteditable="true" spellcheck="false" oninput="syncUserInline(this.innerText, false)">WHOU_Design</span>
                 </div>
                 <i class="fa-solid fa-ellipsis"></i>
             </div>
@@ -172,8 +173,8 @@
             </div>
             <div class="post-content">
                 <div class="post-caption">
-                    <strong id="outCaptionUser">WHOU_Design</strong>
-                    <span id="outCaptionText" class="caption-text"></span>
+                    <strong id="outCaptionUser" class="editable" contenteditable="true" spellcheck="false" oninput="syncUserInline(this.innerText, true)">WHOU_Design</strong>
+                    <span id="outCaptionText" class="caption-text editable" contenteditable="true" spellcheck="false"></span>
                 </div>
                 <div id="viewCommentsBtn" class="view-comments-btn" onclick="toggleComments()">모든 댓글 보기</div>
                 <div id="outComments" class="comments-section"></div>
@@ -190,17 +191,46 @@
         oriWidth = document.getElementById('captureArea').offsetWidth;
         renderComments(); 
         resizeCard(); 
+        setupCaptionInlineEdit();
     });
 
     window.addEventListener('resize', resizeCard);
+
+    // 내용(캡션) 인라인 수정 로직 (포커스 시 원본 텍스트, 블러 시 서식 적용)
+    function setupCaptionInlineEdit() {
+        const captionEl = document.getElementById('outCaptionText');
+        captionEl.addEventListener('focus', function() {
+            this.innerText = document.getElementById('inputCaption').value;
+        });
+        captionEl.addEventListener('blur', function() {
+            document.getElementById('inputCaption').value = this.innerText;
+            this.innerHTML = formatText(this.innerText);
+            updateHeightAndResize();
+        });
+    }
+
+    // 이름 인라인 수정 동기화
+    function syncUserInline(val, isCaptionUser) {
+        document.getElementById('inputUsername').value = val;
+        if (isCaptionUser) {
+            document.getElementById('outUsername').innerText = val;
+        } else {
+            document.getElementById('outCaptionUser').innerText = val;
+        }
+    }
 
     function updateFeedText() {
         const username = document.getElementById('inputUsername').value || 'WHOU_Design';
         const caption = document.getElementById('inputCaption').value;
 
-        document.getElementById('outUsername').innerText = username;
-        document.getElementById('outCaptionUser').innerText = username;
-        document.getElementById('outCaptionText').innerHTML = formatText(caption);
+        if(document.activeElement.id !== 'outUsername' && document.activeElement.id !== 'outCaptionUser') {
+            document.getElementById('outUsername').innerText = username;
+            document.getElementById('outCaptionUser').innerText = username;
+        }
+        
+        if(document.activeElement.id !== 'outCaptionText') {
+            document.getElementById('outCaptionText').innerHTML = formatText(caption);
+        }
 
         updateHeightAndResize();
     }
@@ -274,18 +304,20 @@
         updateHeightAndResize();
     }
 
-    // --- 댓글 수정 기능 추가 ---
-    function editComment(id) {
-        const target = comments.find(c => c.id === id);
-        if (target) {
-            const newText = prompt("댓글 내용을 수정하세요:", target.text);
-            if (newText !== null && newText.trim() !== "") {
-                target.text = newText;
-                renderComments();
-                renderCommentControl();
-                updateHeightAndResize();
-            }
+    // 댓글 인라인 수정 처리
+    function updateCmtData(id, field, value) {
+        const comment = comments.find(c => c.id === id);
+        if (comment) {
+            comment[field] = value;
+            renderCommentControl();
+            renderComments(); // 서식 재적용
+            updateHeightAndResize();
         }
+    }
+
+    function getCmtTextRaw(id) {
+        const comment = comments.find(c => c.id === id);
+        return comment ? comment.text : '';
     }
 
     function renderComments() {
@@ -300,7 +332,16 @@
 
         const visible = comments.length > 2 ? comments.slice(-2) : comments;
         visible.forEach(c => {
-            out.insertAdjacentHTML('beforeend', `<div class="comment-item"><div><strong>${c.name}</strong><span class="comment-text">${formatText(c.text)}</span></div><i class="fa-regular fa-heart"></i></div>`);
+            out.insertAdjacentHTML('beforeend', `
+            <div class="comment-item">
+                <div>
+                    <strong class="editable" contenteditable="true" spellcheck="false" onblur="updateCmtData(${c.id}, 'name', this.innerText)">${c.name}</strong>
+                    <span class="comment-text editable" contenteditable="true" spellcheck="false" 
+                          onfocus="this.innerText = getCmtTextRaw(${c.id})" 
+                          onblur="updateCmtData(${c.id}, 'text', this.innerText)">${formatText(c.text)}</span>
+                </div>
+                <i class="fa-regular fa-heart"></i>
+            </div>`);
         });
         oriHeight = document.getElementById('captureArea').offsetHeight;
     }
@@ -313,7 +354,6 @@
                 <div class="comment-control-item">
                     <span><strong>${c.name}</strong>: ${c.text.substring(0,18)}${c.text.length>18?'...':''}</span>
                     <div>
-                        <button class="edit-btn" onclick="editComment(${c.id})"><i class="fa-solid fa-pen"></i></button>
                         <button class="del-btn" onclick="removeComment(${c.id})"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
                 </div>
@@ -326,7 +366,16 @@
         document.getElementById('viewCommentsBtn').style.display = 'none'; 
         out.innerHTML = '';
         comments.forEach(c => {
-            out.insertAdjacentHTML('beforeend', `<div class="comment-item"><div><strong>${c.name}</strong><span class="comment-text">${formatText(c.text)}</span></div><i class="fa-regular fa-heart"></i></div>`);
+            out.insertAdjacentHTML('beforeend', `
+            <div class="comment-item">
+                <div>
+                    <strong class="editable" contenteditable="true" spellcheck="false" onblur="updateCmtData(${c.id}, 'name', this.innerText)">${c.name}</strong>
+                    <span class="comment-text editable" contenteditable="true" spellcheck="false" 
+                          onfocus="this.innerText = getCmtTextRaw(${c.id})" 
+                          onblur="updateCmtData(${c.id}, 'text', this.innerText)">${formatText(c.text)}</span>
+                </div>
+                <i class="fa-regular fa-heart"></i>
+            </div>`);
         });
         updateHeightAndResize();
     }
@@ -349,6 +398,10 @@
         area.style.setProperty('border', 'none', 'important');
         area.style.setProperty('border-radius', '0', 'important');
         
+        // 캡쳐 시 editable 배경 효과 제거
+        const editables = document.querySelectorAll('.editable');
+        editables.forEach(el => { el.style.outline = 'none'; el.style.background = 'transparent'; el.style.boxShadow = 'none'; });
+        
         await new Promise(r => setTimeout(r, 200)); 
         
         const canvas = await html2canvas(area, {
@@ -360,6 +413,7 @@
         
         area.setAttribute('style', originalStyle);
         container.style.height = originalContainerHeight;
+        editables.forEach(el => { el.style = ''; }); // 스타일 원상복구
         
         return canvas;
     }
