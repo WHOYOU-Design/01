@@ -10,84 +10,51 @@
     :root {
         --primary-text: #222;
         --secondary-text: #888;
-        --accent-color: #0095f6; /* SNS 파란색 */
-        --card-bg: #fff;
+        --accent-color: #0095f6;
         --controls-bg: #fff;
         --border-radius: 12px;
     }
 
     body { 
-        font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+        font-family: 'Pretendard', -apple-system, sans-serif; 
         margin: 0; padding: 30px; 
         display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; 
-        /* 부드러운 분홍색~하얀색 그라데이션 배경 */
         background: linear-gradient(to bottom, #ffe6eb 0%, #ffffff 100%);
         color: var(--primary-text);
     }
     
-    .main-container {
-        display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; align-items: flex-start;
-        width: 100%; max-width: 1000px;
-    }
+    .main-container { display: flex; gap: 40px; flex-wrap: wrap; justify-content: center; align-items: flex-start; width: 100%; max-width: 1000px; }
 
-    /* 입력 컨트롤 창 */
-    .controls { 
-        background: var(--controls-bg); padding: 30px; border-radius: var(--border-radius); 
-        box-shadow: 0 8px 30px rgba(0,0,0,0.05); width: 340px; height: fit-content;
-        position: sticky; top: 30px;
-    }
+    /* 컨트롤 패널 */
+    .controls { background: var(--controls-bg); padding: 30px; border-radius: var(--border-radius); box-shadow: 0 8px 30px rgba(0,0,0,0.05); width: 340px; position: sticky; top: 30px; }
     .controls h3 { margin-top: 0; text-align: center; margin-bottom: 25px;}
     .control-group { margin-bottom: 20px; }
     .controls label { display: block; font-size: 0.95rem; font-weight: 600; color: #444; margin-bottom: 8px;}
-    .controls input, .controls textarea { 
-        width: 100%; padding: 14px;
-        border: 1px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; 
-        transition: border-color 0.2s, box-shadow 0.2s;
-        font-family: inherit;
-    }
+    .controls input, .controls textarea { width: 100%; padding: 14px; border: 1px solid #e0e0e0; border-radius: 8px; box-sizing: border-box; transition: 0.2s; font-family: inherit; }
     .controls input:focus, .controls textarea:focus { border-color: #ccc; outline: none; box-shadow: 0 0 0 3px rgba(0,0,0,0.05); }
     .controls input[type="file"] { border: none; padding: 0; margin-top: 5px; cursor: pointer; }
     
     /* 댓글 입력 */
     .comment-input-group { display: flex; gap: 12px; margin-top: 8px; }
     .comment-input-group input { flex: 1; }
-    .add-comment-btn { 
-        background: #333; color: white; border: none; padding: 12px 20px; border-radius: 8px; 
-        font-weight: bold; cursor: pointer; transition: background 0.2s;
-    }
-    .add-comment-btn:hover { background: #555; }
+    .add-comment-btn { background: #333; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     .comment-list-control { margin-top: 15px; font-size: 0.9rem; color: var(--secondary-text);}
     .comment-control-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
-    .comment-control-item button { 
-        background: none; border: none; color: #f44; cursor: pointer; font-size: 0.9rem;
-    }
+    .comment-control-item button { background: none; border: none; color: #f44; cursor: pointer; font-size: 0.9rem; }
 
-    /* 액션 버튼 영역 */
-    .action-buttons { 
-        display: flex; flex-direction: column; gap: 12px; margin-top: 30px;
-    }
-    .action-btn {
-        width: 100%; padding: 14px; border: none; border-radius: 8px; 
-        font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
-        transition: transform 0.1s, background 0.2s;
-        font-size: 1rem;
-    }
-    .action-btn:active { transform: translateY(1px); }
+    /* 액션 버튼 */
+    .action-buttons { display: flex; flex-direction: column; gap: 12px; margin-top: 30px; }
+    .action-btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1rem; }
     .capture-btn { background: #222; color: white; }
-    .capture-btn:hover { background: #444; }
     .copy-btn { background: #fff; color: #222; border: 1px solid #222;}
-    .copy-btn:hover { background: #f0f0f0; }
-    .share-btn { background: var(--accent-color); color: white; } /* 파란색 공유 버튼 */
-    .share-btn:hover { background: #0077c2; }
+    .share-btn { background: var(--accent-color); color: white; }
 
-    /* SNS 피드 카드 미리보기 (scale 조정을 위한 컨테이너) */
-    .capture-container {
-        display: flex; justify-content: center; align-items: flex-start;
-        overflow: visible; position: relative;
-    }
+    /* 피드 카드 미리보기 */
+    .capture-container { display: flex; justify-content: center; align-items: flex-start; overflow: visible; position: relative; }
 
     .feed-card { 
-        background: var(--card-bg); border-radius: var(--border-radius); width: 380px; 
+        background: #ffffff; /* 캡쳐 오류 방지를 위해 명시적 하드코딩 */
+        border-radius: var(--border-radius); width: 380px; 
         box-shadow: 0 15px 45px rgba(0,0,0,0.08); overflow: hidden; 
         border: 1px solid #e0e0e0;
         transition: transform 0.3s ease-out;
@@ -98,30 +65,22 @@
     .user-avatar { width: 36px; height: 36px; border-radius: 50%; background: #eee; overflow: hidden; }
     .user-avatar img { width: 100%; height: 100%; object-fit: cover; display: none; }
     .avatar-placeholder { font-size: 1.8rem; color: #ccc; display: flex; justify-content: center; align-items: center; }
-    .username-display { font-weight: 600; font-size: 0.95rem; color: var(--primary-text); }
+    .username-display { font-weight: 600; font-size: 0.95rem; color: #222; }
     
-    /* 이미지 영역 */
-    .post-image-container { 
-        width: 100%; aspect-ratio: 1/1; background-color: #f0f0f0; 
-        display: flex; justify-content: center; align-items: center; 
-        position: relative; 
-    }
+    .post-image-container { width: 100%; aspect-ratio: 1/1; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; position: relative; }
     .post-image { width: 100%; height: 100%; object-fit: cover; display: none; }
     .post-image-container .fa-camera { font-size: 5rem; color: rgba(0,0,0,0.05); display: block; }
     
-    /* 하단 액션 & 텍스트 */
     .post-actions { padding: 12px 18px; display: flex; justify-content: space-between; font-size: 1.5rem; color: #333; }
     .post-actions .left { display: flex; gap: 15px; }
     
-    .post-content { padding: 0 18px 18px; font-size: 0.9rem; color: var(--primary-text); }
+    .post-content { padding: 0 18px 18px; font-size: 0.9rem; color: #222; }
     .post-caption { margin-bottom: 8px; }
     .post-caption strong { font-weight: 600; margin-right: 6px;}
     
-    /* 해시태그 파란색 효과 */
     .caption-text b { font-weight: 600; }
     .hashtag { color: var(--accent-color); font-weight: inherit; }
     
-    /* 댓글 영역 */
     .view-comments-btn { color: var(--secondary-text); margin-bottom: 8px; font-size: 0.85rem; cursor: pointer; display: none; }
     .comments-section { display: flex; flex-direction: column; gap: 6px; }
     .comment-item { display: flex; justify-content: space-between; align-items: flex-start; font-size: 0.85rem;}
@@ -130,7 +89,6 @@
     .comment-item .comment-text { color: #444; word-break: break-all; }
     .comment-item .fa-heart { color: #ccc; font-size: 0.75rem; margin-top: 4px; cursor: pointer;}
     
-    /* 모바일 레이아웃 및 scale 조정 */
     @media (max-width: 420px) {
         .main-container { flex-direction: column; gap: 20px; align-items: center; }
         .controls { width: 100%; position: static; box-sizing: border-box; }
@@ -149,22 +107,18 @@
             <label>유저 이름</label>
             <input type="text" id="inputUsername" value="WHOU_Design" oninput="updateFeedText()">
         </div>
-        
         <div class="control-group">
             <label>유저 사진</label>
             <input type="file" id="inputProfilePic" accept="image/*" onchange="previewImage(this, 'outProfilePic')">
         </div>
-        
         <div class="control-group">
             <label>메인 사진</label>
             <input type="file" id="inputPostPic" accept="image/*" onchange="previewImage(this, 'outPostPic', 'cameraIcon')">
         </div>
-        
         <div class="control-group">
             <label>내용 (캡션)</label>
             <textarea id="inputCaption" rows="4" oninput="updateFeedText()">**#SNS_피드_생성기** 자유롭게 사용해주세요.ᐟ</textarea>
         </div>
-        
         <div class="control-group">
             <label>댓글 추가</label>
             <div class="comment-input-group">
@@ -174,8 +128,7 @@
             <div class="comment-input-group">
                 <button class="add-comment-btn" onclick="addComment()"><i class="fa-solid fa-plus"></i> 댓글 추가</button>
             </div>
-            <div id="commentListControl" class="comment-list-control">
-                </div>
+            <div id="commentListControl" class="comment-list-control"></div>
         </div>
 
         <div class="action-buttons">
@@ -197,77 +150,59 @@
                 </div>
                 <i class="fa-solid fa-ellipsis"></i>
             </div>
-            
             <div class="post-image-container" id="outPostPicArea">
                 <img id="outPostPic" class="post-image" src="" alt="Post">
                 <i class="fa-solid fa-camera" id="cameraIcon"></i>
             </div>
-
             <div class="post-actions">
                 <div class="left">
                     <i class="fa-regular fa-heart"></i>
                     <i class="fa-regular fa-comment"></i>
                     <i class="fa-regular fa-paper-plane"></i>
                 </div>
-                <div>
-                    <i class="fa-regular fa-bookmark"></i>
-                </div>
+                <div><i class="fa-regular fa-bookmark"></i></div>
             </div>
-
             <div class="post-content">
                 <div class="post-caption">
                     <strong id="outCaptionUser">WHOU_Design</strong>
-                    <span id="outCaptionText" class="caption-text">**#SNS_피드_생성기** 자유롭게 사용해주세요.ᐟ</span>
+                    <span id="outCaptionText" class="caption-text"></span>
                 </div>
                 <div id="viewCommentsBtn" class="view-comments-btn" onclick="toggleComments()">모든 댓글 보기</div>
-                <div id="outComments" class="comments-section">
-                    </div>
+                <div id="outComments" class="comments-section"></div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    let comments = []; // 댓글 데이터를 저장할 배열
-    let captureAreaOriginalWidth, captureAreaOriginalHeight;
+    let comments = []; 
+    let oriWidth, oriHeight;
 
     document.addEventListener('DOMContentLoaded', () => {
-        captureAreaOriginalWidth = document.getElementById('captureArea').offsetWidth;
-        // 댓글을 렌더링한 후 카드의 원래 높이를 가져와야 함
+        oriWidth = document.getElementById('captureArea').offsetWidth;
         renderComments(); 
-        resizeCard(); // 초기 실행
+        resizeCard(); 
     });
 
-    window.addEventListener('resize', resizeCard); // 화면 크기 변경 시 실행
+    window.addEventListener('resize', resizeCard);
 
-    // 텍스트 필드 실시간 업데이트
     function updateFeedText() {
-        const username = document.getElementById('inputUsername').value;
+        const username = document.getElementById('inputUsername').value || 'WHOU_Design';
         const caption = document.getElementById('inputCaption').value;
 
-        // 이름 업데이트
-        document.getElementById('outUsername').innerText = username || 'WHOU_Design';
-        document.getElementById('outCaptionUser').innerText = username || 'WHOU_Design';
-        
-        // 텍스트 포맷팅 (볼드체, 해시태그)
+        document.getElementById('outUsername').innerText = username;
+        document.getElementById('outCaptionUser').innerText = username;
         document.getElementById('outCaptionText').innerHTML = formatText(caption);
 
-        // 텍스트 업데이트 후 카드의 원래 높이를 다시 가져와서 scale 조정
-        captureAreaOriginalHeight = document.getElementById('captureArea').offsetHeight;
-        resizeCard();
+        updateHeightAndResize();
     }
     
-    // 텍스트 포맷팅 함수 (볼드체 및 해시태그 처리)
     function formatText(text) {
         if (!text) return "";
-        // 마크다운 볼드체(**텍스트**) 처리
-        let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-        // 해시태그(#단어) 파란색 처리
-        formattedText = formattedText.replace(/(\#[^\s!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?]+)/g, '<span class="hashtag">$1</span>');
-        return formattedText;
+        let formatted = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+        return formatted.replace(/(\#[^\s!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?]+)/g, '<span class="hashtag">$1</span>');
     }
 
-    // 이미지 직접 업로드 미리보기
     function previewImage(input, targetId, iconId) {
         const targetImg = document.getElementById(targetId);
         const placeholder = targetId === 'outProfilePic' ? document.getElementById('profilePlaceholder') : null;
@@ -275,217 +210,159 @@
         
         if (input.files && input.files[0]) {
             const reader = new FileReader();
-            
             reader.onload = function(e) {
                 targetImg.src = e.target.result;
                 targetImg.style.display = 'block';
                 if (placeholder) placeholder.style.display = 'none';
                 if (icon) icon.style.display = 'none';
-                
-                // 이미지 업로드 후 카드의 원래 높이를 다시 가져와서 scale 조정
-                captureAreaOriginalHeight = document.getElementById('captureArea').offsetHeight;
-                resizeCard();
+                updateHeightAndResize();
             }
-            
             reader.readAsDataURL(input.files[0]);
         } else {
             targetImg.style.display = 'none';
             targetImg.src = '';
             if (placeholder) placeholder.style.display = 'flex';
             if (icon) icon.style.display = 'block';
-            
-            // 이미지 제거 후 카드의 원래 높이를 다시 가져와서 scale 조정
-            captureAreaOriginalHeight = document.getElementById('captureArea').offsetHeight;
-            resizeCard();
+            updateHeightAndResize();
         }
     }
 
-    // 화면 크기에 따라 카드 부드럽게 작아지는 기능 (scale)
     function resizeCard() {
-        const mainContainer = document.querySelector('.main-container');
-        const captureContainer = document.getElementById('captureContainer');
-        const captureArea = document.getElementById('captureArea');
-        const containerWidth = mainContainer.offsetWidth;
+        const cw = document.querySelector('.main-container').offsetWidth;
+        const area = document.getElementById('captureArea');
+        const container = document.getElementById('captureContainer');
 
-        if (!captureAreaOriginalWidth || !captureAreaOriginalHeight) return;
+        if (!oriWidth || !oriHeight) return;
 
-        // 모바일 뷰에서 scale 조정
-        if (containerWidth < 420) {
-            const targetWidth = containerWidth - 40; // 마진 확보
-            const scale = targetWidth / captureAreaOriginalWidth;
-            captureArea.style.transform = `scale(${scale})`;
-            captureContainer.style.height = `${captureAreaOriginalHeight * scale}px`;
+        if (cw < 420) {
+            const scale = (cw - 40) / oriWidth;
+            area.style.transform = `scale(${scale})`;
+            container.style.height = `${oriHeight * scale}px`;
         } else {
-            // 데스크톱 뷰에서는 scale 초기화
-            captureArea.style.transform = `scale(1)`;
-            captureContainer.style.height = 'auto';
+            area.style.transform = `scale(1)`;
+            container.style.height = 'auto';
         }
     }
 
-    // 댓글 추가
+    function updateHeightAndResize() {
+        setTimeout(() => {
+            oriHeight = document.getElementById('captureArea').offsetHeight;
+            resizeCard();
+        }, 50);
+    }
+
     function addComment() {
-        const nameInput = document.getElementById('inputCommentName');
-        const textInput = document.getElementById('inputCommentText');
-        const name = nameInput.value || '사용자';
-        const text = textInput.value;
+        const name = document.getElementById('inputCommentName').value || '사용자';
+        const text = document.getElementById('inputCommentText').value;
 
-        if (!text) {
-            alert('댓글 내용을 입력해 주세요.');
-            return;
-        }
+        if (!text) return alert('댓글 내용을 입력해 주세요.');
 
-        const newComment = {
-            id: Date.now(),
-            name: name,
-            text: text
-        };
-
-        comments.push(newComment);
-        renderComments(); // 댓글 영역 다시 그리기
-        renderCommentControl(); // 댓글 관리 목록 다시 그리기
-        textInput.value = ''; // 입력 필드 초기화
-        
-        // 댓글 추가 후 카드의 원래 높이를 다시 가져와서 scale 조정
-        captureAreaOriginalHeight = document.getElementById('captureArea').offsetHeight;
-        resizeCard();
+        comments.push({ id: Date.now(), name, text });
+        renderComments(); 
+        renderCommentControl(); 
+        document.getElementById('inputCommentText').value = ''; 
+        updateHeightAndResize();
     }
 
-    // 댓글 삭제
     function removeComment(id) {
-        comments = comments.filter(comment => comment.id !== id);
+        comments = comments.filter(c => c.id !== id);
         renderComments();
         renderCommentControl();
-        
-        // 댓글 삭제 후 카드의 원래 높이를 다시 가져와서 scale 조정
-        captureAreaOriginalHeight = document.getElementById('captureArea').offsetHeight;
-        resizeCard();
+        updateHeightAndResize();
     }
 
-    // 댓글 영역 렌더링
     function renderComments() {
-        const outComments = document.getElementById('outComments');
-        const viewBtn = document.getElementById('viewCommentsBtn');
-        outComments.innerHTML = ''; // 초기화
+        const out = document.getElementById('outComments');
+        const btn = document.getElementById('viewCommentsBtn');
+        out.innerHTML = ''; 
 
-        if (comments.length === 0) {
-            viewBtn.style.display = 'none';
-            return;
-        }
-
-        viewBtn.style.display = comments.length > 2 ? 'block' : 'none'; // 댓글이 많으면 '모든 댓글 보기' 표시
-        viewBtn.innerText = `모든 댓글 보기 (${comments.length}개)`;
-
-        // 최근 2개 댓글만 기본 표시
-        const visibleComments = comments.length > 2 ? comments.slice(-2) : comments;
-
-        visibleComments.forEach(comment => {
-            const commentHtml = `
-                <div class="comment-item">
-                    <div><strong>${comment.name}</strong><span class="comment-text">${formatText(comment.text)}</span></div>
-                    <i class="fa-regular fa-heart"></i>
-                </div>
-            `;
-            outComments.insertAdjacentHTML('beforeend', commentHtml);
-        });
+        if (comments.length === 0) { btn.style.display = 'none'; return; }
         
-        // 렌더링 후 카드의 원래 높이를 다시 가져옴
-        captureAreaOriginalHeight = document.getElementById('captureArea').offsetHeight;
+        btn.style.display = comments.length > 2 ? 'block' : 'none'; 
+        btn.innerText = `모든 댓글 보기 (${comments.length}개)`;
+
+        const visible = comments.length > 2 ? comments.slice(-2) : comments;
+        visible.forEach(c => {
+            out.insertAdjacentHTML('beforeend', `<div class="comment-item"><div><strong>${c.name}</strong><span class="comment-text">${formatText(c.text)}</span></div><i class="fa-regular fa-heart"></i></div>`);
+        });
+        oriHeight = document.getElementById('captureArea').offsetHeight;
     }
 
-    // 댓글 관리 목록 렌더링 (컨트롤 패널 내부)
     function renderCommentControl() {
-        const controlList = document.getElementById('commentListControl');
-        controlList.innerHTML = '';
-
-        comments.forEach(comment => {
-            const itemHtml = `
-                <div class="comment-control-item">
-                    <span><strong>${comment.name}</strong>: ${comment.text.substring(0, 18)}${comment.text.length > 18 ? '...' : ''}</span>
-                    <button onclick="removeComment(${comment.id})"><i class="fa-solid fa-trash-can"></i></button>
-                </div>
-            `;
-            controlList.insertAdjacentHTML('beforeend', itemHtml);
+        const list = document.getElementById('commentListControl');
+        list.innerHTML = '';
+        comments.forEach(c => {
+            list.insertAdjacentHTML('beforeend', `<div class="comment-control-item"><span><strong>${c.name}</strong>: ${c.text.substring(0,18)}${c.text.length>18?'...':''}</span><button onclick="removeComment(${c.id})"><i class="fa-solid fa-trash-can"></i></button></div>`);
         });
     }
 
-    // 댓글 더보기 기능
     function toggleComments() {
-        const outComments = document.getElementById('outComments');
-        const viewBtn = document.getElementById('viewCommentsBtn');
-        
-        outComments.innerHTML = '';
-        comments.forEach(comment => {
-            const commentHtml = `
-                <div class="comment-item">
-                    <div><strong>${comment.name}</strong><span class="comment-text">${formatText(comment.text)}</span></div>
-                    <i class="fa-regular fa-heart"></i>
-                </div>
-            `;
-            outComments.insertAdjacentHTML('beforeend', commentHtml);
+        const out = document.getElementById('outComments');
+        document.getElementById('viewCommentsBtn').style.display = 'none'; 
+        out.innerHTML = '';
+        comments.forEach(c => {
+            out.insertAdjacentHTML('beforeend', `<div class="comment-item"><div><strong>${c.name}</strong><span class="comment-text">${formatText(c.text)}</span></div><i class="fa-regular fa-heart"></i></div>`);
         });
-        viewBtn.style.display = 'none'; // 링크 숨기기
-        
-        // 댓글 펼침 후 카드의 원래 높이를 다시 가져와서 scale 조정
-        captureAreaOriginalHeight = document.getElementById('captureArea').offsetHeight;
-        resizeCard();
+        updateHeightAndResize();
     }
 
-    // --- 액션 기능 ---
+    // --- 캡쳐 안정화 로직 ---
+    async function generateCanvas() {
+        const area = document.getElementById('captureArea');
+        const oriTrans = area.style.transform;
+        const oriShadow = area.style.boxShadow;
+        
+        // 캡쳐 오류 방지를 위해 임시로 모바일 축소 풀기 & 그림자 제거
+        area.style.transform = 'scale(1)';
+        area.style.boxShadow = 'none';
+        
+        await new Promise(r => setTimeout(r, 100)); // 렌더링 시간 벌기
+        
+        const canvas = await html2canvas(area, {
+            scale: 2, 
+            backgroundColor: '#ffffff', // 배경을 무조건 흰색으로 고정
+            useCORS: true
+        });
+        
+        // 원상 복구
+        area.style.transform = oriTrans;
+        area.style.boxShadow = oriShadow;
+        
+        return canvas;
+    }
 
-    // 이미지로 캡쳐 및 다운로드
     function captureImage() {
-        const captureArea = document.getElementById('captureArea');
-        html2canvas(captureArea).then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
+        generateCanvas().then(canvas => {
             const link = document.createElement('a');
-            link.href = imgData;
+            link.href = canvas.toDataURL('image/png');
             link.download = `sns_feed_${Date.now()}.png`;
             link.click();
         });
     }
 
-    // 이미지 클립보드에 복사
     function copyImage() {
-        const captureArea = document.getElementById('captureArea');
-        html2canvas(captureArea).then(canvas => {
+        generateCanvas().then(canvas => {
             canvas.toBlob(blob => {
-                const item = new ClipboardItem({ 'image/png': blob });
-                navigator.clipboard.write([item]).then(() => {
-                    alert('이미지가 클립보드에 복사되었습니다.');
-                }).catch(err => {
-                    console.error('복사 실패:', err);
-                    alert('복사에 실패했습니다. 브라우저 설정을 확인해 주세요.');
-                });
+                navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+                    .then(() => alert('클립보드에 복사되었습니다.'))
+                    .catch(() => alert('복사에 실패했습니다.'));
             });
         });
     }
 
-    // 이미지 공유하기
     function shareImage() {
-        const captureArea = document.getElementById('captureArea');
-        html2canvas(captureArea).then(canvas => {
+        generateCanvas().then(canvas => {
             canvas.toBlob(blob => {
-                const file = new File([blob], `sns_feed_${Date.now()}.png`, { type: 'image/png' });
-                
+                const file = new File([blob], `sns_feed.png`, { type: 'image/png' });
                 if (navigator.share) {
-                    navigator.share({
-                        title: '내 SNS 피드',
-                        text: '직접 만든 SNS 피드입니다!',
-                        files: [file]
-                    }).then(() => {
-                        console.log('공유 성공');
-                    }).catch(err => {
-                        console.error('공유 실패:', err);
-                        alert('공유에 실패했습니다. 공유를 지원하는 브라우저에서 시도해 주세요.');
-                    });
+                    navigator.share({ title: '내 SNS 피드', files: [file] }).catch(console.error);
                 } else {
-                    alert('공유하기 기능은 모바일 브라우저 등 navigator.share를 지원하는 환경에서만 작동합니다. 대신 이미지 다운로드를 이용해 주세요.');
+                    alert('공유하기를 지원하지 않는 브라우저입니다.');
                 }
             });
         });
     }
     
-    // 초기 실행
     updateFeedText();
 </script>
 </body>
