@@ -39,9 +39,10 @@
     .comment-input-group input { flex: 1; }
     .add-comment-btn { background: #333; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     .comment-list-control { margin-top: 15px; font-size: 0.9rem; color: var(--secondary-text);}
-    .comment-control-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
-    .comment-control-item button { background: none; border: none; cursor: pointer; font-size: 0.9rem; margin-left: 5px; }
-    .comment-control-item .edit-btn { color: var(--accent-color); }
+    
+    .comment-control-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #eee; }
+    .cmt-text-area { flex: 1; padding-right: 10px; word-break: break-all; line-height: 1.5; }
+    .comment-control-item button { background: none; border: none; cursor: pointer; font-size: 0.9rem; margin-top: 2px; }
     .comment-control-item .del-btn { color: #f44; }
 
     /* 액션 버튼 */
@@ -51,7 +52,7 @@
     .copy-btn { background: #fff; color: #222; border: 1px solid #222;}
     .share-btn { background: var(--accent-color); color: white; }
 
-    /* 안쪽(인라인) 직접 수정 가능 영역 강조 효과 */
+    /* 안팎 공통 직접 수정 가능 영역 강조 효과 */
     .editable { 
         outline: none; border-radius: 4px; padding: 2px 4px; margin: -2px -4px; 
         border: 1px dashed transparent; transition: 0.2s; 
@@ -229,24 +230,17 @@
 
     function focusCmtText(el, id) {
         const c = comments.find(x => x.id === id);
-        if (c) el.innerText = c.text; // 수정할 때는 마크다운 원본 텍스트 보여주기
+        if (c) el.innerText = c.text; 
     }
 
-    function blurCmtText(el, id) {
-        const c = comments.find(x => x.id === id);
-        if (c) {
-            c.text = el.innerText;
-            el.innerHTML = formatText(c.text);
-            renderCommentControl();
+    // 댓글 데이터를 양방향(왼/오)으로 일괄 동기화하는 함수
+    function syncCommentData(id, field, value) {
+        const comment = comments.find(c => c.id === id);
+        if (comment) {
+            comment[field] = value;
+            renderComments(); // 오른쪽 미리보기 갱신
+            renderCommentControl(); // 왼쪽 컨트롤패널 갱신
             updateHeightAndResize();
-        }
-    }
-
-    function blurCmtName(el, id) {
-        const c = comments.find(x => x.id === id);
-        if (c) {
-            c.name = el.innerText;
-            renderCommentControl();
         }
     }
     /* ------------------------------ */
@@ -335,20 +329,6 @@
         updateHeightAndResize();
     }
 
-    // 바깥쪽(컨트롤 패널)에서 수정하는 기능 (프롬프트 창)
-    function editComment(id) {
-        const target = comments.find(c => c.id === id);
-        if (target) {
-            const newText = prompt("댓글 내용을 수정하세요:", target.text);
-            if (newText !== null && newText.trim() !== "") {
-                target.text = newText;
-                renderComments();
-                renderCommentControl();
-                updateHeightAndResize();
-            }
-        }
-    }
-
     function renderComments() {
         const out = document.getElementById('outComments');
         const btn = document.getElementById('viewCommentsBtn');
@@ -366,10 +346,10 @@
                     <div>
                         <strong class="editable" contenteditable="true" spellcheck="false" 
                                 onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}" 
-                                onblur="blurCmtName(this, ${c.id})">${c.name}</strong>
+                                onblur="syncCommentData(${c.id}, 'name', this.innerText)">${c.name}</strong>
                         <span class="comment-text editable" contenteditable="true" spellcheck="false" 
                               onfocus="focusCmtText(this, ${c.id})" 
-                              onblur="blurCmtText(this, ${c.id})">${formatText(c.text)}</span>
+                              onblur="syncCommentData(${c.id}, 'text', this.innerText)">${formatText(c.text)}</span>
                     </div>
                     <i class="fa-regular fa-heart"></i>
                 </div>
@@ -384,9 +364,15 @@
         comments.forEach(c => {
             list.insertAdjacentHTML('beforeend', `
                 <div class="comment-control-item">
-                    <span><strong>${c.name}</strong>: ${c.text.substring(0,18)}${c.text.length>18?'...':''}</span>
+                    <div class="cmt-text-area">
+                        <strong class="editable" contenteditable="true" spellcheck="false" 
+                                onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}" 
+                                onblur="syncCommentData(${c.id}, 'name', this.innerText)">${c.name}</strong>: 
+                        <span class="editable" contenteditable="true" spellcheck="false" 
+                              onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}" 
+                              onblur="syncCommentData(${c.id}, 'text', this.innerText)">${c.text}</span>
+                    </div>
                     <div>
-                        <button class="edit-btn" onclick="editComment(${c.id})"><i class="fa-solid fa-pen"></i></button>
                         <button class="del-btn" onclick="removeComment(${c.id})"><i class="fa-solid fa-trash-can"></i></button>
                     </div>
                 </div>
@@ -404,10 +390,10 @@
                     <div>
                         <strong class="editable" contenteditable="true" spellcheck="false" 
                                 onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}" 
-                                onblur="blurCmtName(this, ${c.id})">${c.name}</strong>
+                                onblur="syncCommentData(${c.id}, 'name', this.innerText)">${c.name}</strong>
                         <span class="comment-text editable" contenteditable="true" spellcheck="false" 
                               onfocus="focusCmtText(this, ${c.id})" 
-                              onblur="blurCmtText(this, ${c.id})">${formatText(c.text)}</span>
+                              onblur="syncCommentData(${c.id}, 'text', this.innerText)">${formatText(c.text)}</span>
                     </div>
                     <i class="fa-regular fa-heart"></i>
                 </div>
