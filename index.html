@@ -40,7 +40,9 @@
     .add-comment-btn { background: #333; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
     .comment-list-control { margin-top: 15px; font-size: 0.9rem; color: var(--secondary-text);}
     .comment-control-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
-    .comment-control-item button { background: none; border: none; color: #f44; cursor: pointer; font-size: 0.9rem; }
+    .comment-control-item button { background: none; border: none; cursor: pointer; font-size: 0.9rem; margin-left: 5px; }
+    .comment-control-item .edit-btn { color: var(--accent-color); }
+    .comment-control-item .del-btn { color: #f44; }
 
     /* 액션 버튼 */
     .action-buttons { display: flex; flex-direction: column; gap: 12px; margin-top: 30px; }
@@ -209,7 +211,6 @@
         return formatted.replace(/(\#[^\s!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?]+)/g, '<span class="hashtag">$1</span>');
     }
 
-    // 이미지 프리뷰 로직 변경 (src 대신 backgroundImage 사용)
     function previewImage(input, targetAreaId, iconId) {
         const targetArea = document.getElementById(targetAreaId);
         const icon = document.getElementById(iconId);
@@ -224,7 +225,7 @@
             reader.readAsDataURL(input.files[0]);
         } else {
             targetArea.style.backgroundImage = 'none';
-            if (icon) icon.style.display = ''; // 원래 CSS 속성으로 되돌림
+            if (icon) icon.style.display = ''; 
             updateHeightAndResize();
         }
     }
@@ -273,6 +274,20 @@
         updateHeightAndResize();
     }
 
+    // --- 댓글 수정 기능 추가 ---
+    function editComment(id) {
+        const target = comments.find(c => c.id === id);
+        if (target) {
+            const newText = prompt("댓글 내용을 수정하세요:", target.text);
+            if (newText !== null && newText.trim() !== "") {
+                target.text = newText;
+                renderComments();
+                renderCommentControl();
+                updateHeightAndResize();
+            }
+        }
+    }
+
     function renderComments() {
         const out = document.getElementById('outComments');
         const btn = document.getElementById('viewCommentsBtn');
@@ -294,7 +309,15 @@
         const list = document.getElementById('commentListControl');
         list.innerHTML = '';
         comments.forEach(c => {
-            list.insertAdjacentHTML('beforeend', `<div class="comment-control-item"><span><strong>${c.name}</strong>: ${c.text.substring(0,18)}${c.text.length>18?'...':''}</span><button onclick="removeComment(${c.id})"><i class="fa-solid fa-trash-can"></i></button></div>`);
+            list.insertAdjacentHTML('beforeend', `
+                <div class="comment-control-item">
+                    <span><strong>${c.name}</strong>: ${c.text.substring(0,18)}${c.text.length>18?'...':''}</span>
+                    <div>
+                        <button class="edit-btn" onclick="editComment(${c.id})"><i class="fa-solid fa-pen"></i></button>
+                        <button class="del-btn" onclick="removeComment(${c.id})"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                </div>
+            `);
         });
     }
 
@@ -308,7 +331,6 @@
         updateHeightAndResize();
     }
 
-    // --- 캡쳐 안정화 로직 ---
     async function generateCanvas() {
         const area = document.getElementById('captureArea');
         const container = document.getElementById('captureContainer');
